@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>城市里的花越多，生态网络越好吗？</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#12181f;
+  --ink-2:#414d5a;
+  --ink-3:#8b95a1;
+  --line:#e3e7ec;
+  --line-2:#f2f5f8;
+  --accent:#0b7ba8;
+  --accent-2:#2ea8dc;
+  --accent-3:#7fd3f2;
+  --up:#1b7a4d;
+  --down:#b4531c;
+  --ns:#a8b0ba;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+html{
+  font-size:clamp(15px,.42vw + .66vh,20px);
+  background:#fff;
+}
+@media (min-width:861px){
+  html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+}
+
+body{
+  font-family:"Times New Roman","Songti SC","SimSun","STSong","宋体",serif;
+  color:var(--ink);
+  background:#fff;
+  line-height:1.75;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* ================= 进度条 ================= */
+.progress{
+  position:fixed;top:0;left:0;height:2px;width:0;z-index:80;
+  background:linear-gradient(90deg,var(--accent),var(--accent-3));
+  transition:width .18s linear;
+}
+
+/* ================= 通用版式 ================= */
+.sec{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  display:grid;align-content:center;
+  padding:clamp(4rem,9vh,6.5rem) clamp(1.6rem,5vw,6.5rem) clamp(5.5rem,11vh,7.5rem);
+}
+@media (max-width:860px){
+  html{scroll-snap-type:none}
+  .sec{min-height:0;padding:3.6rem 1.4rem 4rem}
+}
+.wrap{width:100%;max-width:1240px;margin:0 auto}
+
+h1{
+  font-weight:700;
+  font-size:clamp(2.5rem,3.4vw + 2vh,4.8rem);
+  line-height:1.2;letter-spacing:.005em;margin-top:1.2rem;
+}
+h2{
+  font-weight:700;
+  font-size:clamp(1.7rem,1.9vw + 1.2vh,3rem);
+  line-height:1.28;letter-spacing:.005em;margin-top:1rem;
+}
+p{color:var(--ink-2);font-size:clamp(.95rem,.36vw + .68vh,1.16rem);line-height:1.9}
+p + p{margin-top:.85em}
+strong{font-weight:700;color:var(--ink)}
+b.num{font-family:"Times New Roman",serif}
+
+.kicker{
+  display:flex;align-items:center;gap:1rem;
+  font-size:.7rem;letter-spacing:.24em;color:var(--ink-3);
+}
+.kicker b{font-weight:400;font-family:"Times New Roman",serif}
+.kicker::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.src{font-size:.86rem;color:var(--ink-3);font-style:italic;margin-top:.8rem;letter-spacing:.01em}
+.rule{height:1px;background:var(--line);margin:2rem 0}
+
+/* ================= 进场动画 ================= */
+[data-anim]{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .9s var(--ease),transform .9s var(--ease);
+  transition-delay:var(--d,0ms);
+}
+.on [data-anim]{opacity:1;transform:none}
+[data-anim="fade"]{transform:none}
+[data-anim="left"]{transform:translateX(-20px)}
+[data-anim="right"]{transform:translateX(20px)}
+[data-anim="zoom"]{transform:scale(.975)}
+.on [data-anim="left"],.on [data-anim="right"],.on [data-anim="zoom"]{transform:none}
+
+/* ================= 栅格 ================= */
+.g{display:grid;gap:clamp(1.6rem,3.4vw,4rem);align-items:center}
+.g-56{grid-template-columns:5fr 6fr}
+.g-64{grid-template-columns:6fr 5fr}
+.g-11{grid-template-columns:1fr 1fr}
+.g-73{grid-template-columns:7fr 5fr}
+.g-top{align-items:start}
+@media (max-width:1080px){
+  .g-56,.g-64,.g-11,.g-73{grid-template-columns:1fr;gap:2.2rem}
+}
+
+/* ================= 图 ================= */
+figure{display:flex;flex-direction:column;align-items:center;gap:.85rem;min-width:0}
+figure img{
+  max-width:100%;max-height:46vh;
+  object-fit:contain;display:block;
+  border:1px solid var(--line-2);border-radius:2px;
+}
+figcaption{font-size:.76rem;color:var(--ink-3);line-height:1.6;text-align:center;letter-spacing:.02em;max-width:56ch}
+
+/* ================= 页 1 · 封面 ================= */
+.cover-title{max-width:22ch}
+.cover-lede{
+  margin-top:1.8rem;max-width:44ch;
+  font-size:clamp(1rem,.7vw + .7vh,1.35rem);
+  line-height:1.95;color:var(--ink-2);
+}
+.cover-meta{
+  margin-top:2.8rem;display:flex;gap:2.2rem;flex-wrap:wrap;
+  font-size:.8rem;color:var(--ink-3);letter-spacing:.06em;
+  border-top:1px solid var(--line);padding-top:1.2rem;
+}
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,var(--line) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(ellipse 62% 58% at 76% 40%,#000,transparent 70%);
+  mask-image:radial-gradient(ellipse 62% 58% at 76% 40%,#000,transparent 70%);
+  opacity:.95;
+}
+.cover-art{display:flex;justify-content:flex-end}
+@media (max-width:1080px){.cover-art{display:none}}
+
+/* ================= 页 2 · 数字 ================= */
+.figure-xl{
+  font-family:"Times New Roman",serif;
+  font-size:clamp(5rem,7.5vw + 3vh,11rem);
+  line-height:.86;font-weight:400;color:var(--accent);
+  letter-spacing:-.03em;
+}
+.figure-cap{margin-top:1rem;font-size:.95rem;color:var(--ink-3);letter-spacing:.16em}
+
+/* ================= 页 3 · 二分网络 ================= */
+.bp{width:100%;max-width:100%;height:auto;max-height:46vh;display:block}
+.bp-link{
+  fill:none;stroke:var(--accent-2);stroke-width:1.7;stroke-linecap:round;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  transition:stroke-dashoffset 1s var(--ease),opacity .3s var(--ease),
+             stroke-width .3s var(--ease),stroke .3s var(--ease);
+  transition-delay:calc(var(--ld,0ms) + var(--dl,0ms));
+}
+.on .bp-link{stroke-dashoffset:0}
+.bp-node-p,.bp-node-a{
+  opacity:0;cursor:pointer;
+  transform-box:fill-box;transform-origin:center;transform:scale(.45);
+  transition:opacity .55s var(--ease),transform .55s var(--ease);
+  transition-delay:var(--nd,0ms);
+}
+.on .bp-node-p,.on .bp-node-a{opacity:1;transform:scale(1)}
+.bp-halo{fill:var(--accent-3);opacity:.30;transition:opacity .3s var(--ease)}
+.bp-node-p:hover .bp-halo,.bp-node-a:hover .bp-halo,
+.bp-node-p.hot .bp-halo,.bp-node-a.hot .bp-halo{opacity:1}
+.bp-dot{fill:#fff;stroke:var(--accent);stroke-width:2.4;
+  transition:stroke-width .28s var(--ease),stroke .28s var(--ease)}
+.bp-node-p:hover .bp-dot{stroke-width:3.6;stroke:var(--accent-2)}
+.bp-box{fill:url(#boxGrad);transition:opacity .28s var(--ease)}
+.bp-node-a:hover .bp-box{opacity:.82}
+.bp-deg{font-family:"Times New Roman",serif;font-size:13.5px;fill:var(--accent);text-anchor:middle}
+.bp-deg-a{font-family:"Times New Roman",serif;font-size:14.5px;font-weight:700;fill:#fff;text-anchor:middle}
+.bp-label{font-family:"Times New Roman",serif;font-size:14px;fill:var(--ink-2);letter-spacing:.04em}
+.bp-label-p{text-anchor:end}
+.bp-label-a{text-anchor:start}
+.bp-col-title{font-size:12.5px;fill:var(--ink-3);letter-spacing:.18em}
+/* 聚焦：悬停任一节点时压暗其余元素 */
+.bp.dim-others .bp-link{opacity:.09;stroke-width:1.2}
+.bp.dim-others .bp-link.hot{opacity:1;stroke:var(--accent);stroke-width:2.8}
+.bp.dim-self .bp-node-p,.bp.dim-self .bp-node-a{opacity:.22}
+.bp.dim-self .bp-node-p.hot,.bp.dim-self .bp-node-a.hot{opacity:1}
+.bp-note{font-size:.74rem;color:var(--ink-3);letter-spacing:.04em;margin-top:.1rem}
+
+.formula{
+  display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:1.05rem 0;margin-top:1.5rem;
+}
+.formula .fx{
+  font-family:"Times New Roman",serif;font-style:italic;
+  font-size:clamp(1.45rem,1.5vw + .85vh,2.2rem);
+  color:var(--ink);white-space:nowrap;
+}
+.formula .legend{
+  display:flex;flex-direction:column;gap:.16rem;
+  font-size:.88rem;color:var(--ink-2);line-height:1.5;
+  border-left:1px solid var(--line);padding-left:1.4rem;
+}
+.formula .legend span{white-space:nowrap}
+.formula .legend i{
+  font-family:"Times New Roman",serif;font-style:italic;font-weight:600;
+  color:var(--accent);display:inline-block;min-width:1.1em;
+}
+.probe{
+  margin-top:1.5rem;border:1px solid var(--line);border-radius:4px;
+  overflow:hidden;
+}
+.probe .ph{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding:.6rem 1rem;background:#fbfcfd;border-bottom:1px solid var(--line);
+  font-size:.72rem;letter-spacing:.16em;color:var(--ink-3);
+}
+.probe .prow{
+  display:grid;grid-template-columns:6.4rem 1fr 3.4rem 3.6rem;
+  gap:.9rem;align-items:center;padding:.5rem 1rem;
+  border-bottom:1px solid var(--line-2);font-size:.86rem;
+}
+.probe .prow:last-child{border-bottom:none}
+.probe .nm{color:var(--ink-2)}
+.probe .tk{position:relative;height:7px;background:var(--line-2);border-radius:4px;overflow:hidden}
+.probe .tk i{
+  position:absolute;left:0;top:0;bottom:0;border-radius:4px;
+  width:0;background:var(--accent);transition:width .9s var(--ease);
+  transition-delay:var(--fd,0ms);
+}
+.on .probe .tk i{width:var(--w)}
+.probe .pc{font-family:"Times New Roman",serif;text-align:right;color:var(--ink)}
+.probe .pr{font-family:"Times New Roman",serif;text-align:right;color:var(--ink-3);font-size:.82rem}
+.probe .pf{
+  padding:.55rem 1rem;background:#fbfcfd;border-top:1px solid var(--line);
+  font-size:.78rem;color:var(--ink-3);letter-spacing:.02em;
+}
+@media (max-width:1080px){
+  .probe .prow{grid-template-columns:5.2rem 1fr 2.8rem 3rem;gap:.5rem;font-size:.78rem}
+}
+
+/* ================= 页 4 · 三个层次 ================= */
+.layers{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(1.2rem,2.6vw,2.6rem);margin-top:2.4rem;
+}
+.layer{
+  border-top:2px solid var(--ink);padding-top:1.4rem;
+  display:flex;flex-direction:column;
+}
+.layer .no{
+  font-family:"Times New Roman",serif;font-size:.86rem;
+  letter-spacing:.18em;color:var(--accent-2);
+}
+.layer .tt{
+  font-size:clamp(1.15rem,.85vw + .8vh,1.65rem);
+  font-weight:700;letter-spacing:.02em;margin-top:.7rem;
+}
+.layer .dd{
+  font-size:clamp(.88rem,.3vw + .62vh,1.02rem);
+  color:var(--ink-2);margin-top:.75rem;line-height:1.85;flex:1;
+}
+.layer .tag{
+  margin-top:1.5rem;padding-top:.85rem;border-top:1px solid var(--line);
+  font-size:.74rem;color:var(--ink-3);letter-spacing:.11em;line-height:1.75;
+}
+.layers-note{
+  margin-top:2.6rem;padding-top:1.4rem;border-top:1px solid var(--line);
+  font-size:clamp(.98rem,.5vw + .7vh,1.32rem);line-height:1.85;
+  color:var(--ink-2);max-width:64ch;
+}
+.layers-note b{color:var(--ink)}
+@media (max-width:1080px){
+  .layers{grid-template-columns:1fr;gap:0}
+  .layer{border-top:none;border-left:2px solid var(--ink);padding:0 0 0 1.2rem;margin-bottom:1.6rem}
+}
+
+/* ================= 页 5 · 系数条形图 ================= */
+.chart{margin-top:1.6rem}
+.chart-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.72rem;color:var(--ink-3);letter-spacing:.16em;
+  padding-bottom:.55rem;border-bottom:1px solid var(--line);
+}
+.row{
+  display:grid;grid-template-columns:8.2rem 1fr 5rem 4.6rem;
+  gap:.9rem;align-items:center;
+  padding:.55rem 0;border-bottom:1px solid var(--line-2);font-size:.88rem;
+}
+.row .nm{color:var(--ink-2)}
+.track{position:relative;height:9px;background:var(--line-2);border-radius:5px;overflow:hidden}
+.track::after{
+  content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#ccd4dc;
+}
+.track .fill{
+  position:absolute;top:0;bottom:0;border-radius:5px;
+  width:0;transition:width 1.05s var(--ease);transition-delay:var(--fd,0ms);
+}
+.fill.up{left:50%;background:var(--up)}
+.fill.down{right:50%;background:var(--down)}
+.fill.ns{
+  left:50%;background:var(--ns);
+  background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.85) 0 3px,transparent 3px 6px);
+}
+.on .fill{width:var(--w)}
+.row .coef{font-family:"Times New Roman",serif;font-size:.98rem;text-align:right;color:var(--ink)}
+.row .coef.up{color:var(--up)}
+.row .coef.down{color:var(--down)}
+.row .coef.ns{color:var(--ns)}
+.row .sig{font-size:.76rem;color:var(--ink-3);text-align:right;font-family:"Times New Roman",serif}
+.sig .st.up{color:var(--up)}
+.sig .st.down{color:var(--down)}
+@media (max-width:1080px){
+  .row{grid-template-columns:6.4rem 1fr 4.2rem 3.6rem;gap:.5rem;font-size:.8rem}
+}
+.takeaway{
+  margin-top:1.2rem;padding:.95rem 1.15rem;
+  border-left:2px solid var(--accent-2);background:#fbfcfd;
+  font-size:clamp(.92rem,.3vw + .65vh,1.06rem);line-height:1.85;color:var(--ink-2);
+}
+
+/* ================= 页 6 · 季节切换 ================= */
+.switch{
+  display:flex;flex-direction:column;align-items:center;gap:.75rem;
+  width:100%;max-width:100%;
+}
+.sbar{
+  display:inline-flex;gap:.2rem;padding:.28rem;
+  background:var(--line-2);border:1px solid var(--line);border-radius:999px;
+}
+.sbar button{
+  border:0;background:transparent;cursor:pointer;
+  font:inherit;font-size:.82rem;letter-spacing:.1em;color:var(--ink-3);
+  padding:.38rem 1.15rem;border-radius:999px;white-space:nowrap;
+  transition:background .3s var(--ease),color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.sbar button:hover{color:var(--ink-2)}
+.sbar button.on{
+  background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(18,24,31,.13);
+}
+.frame{
+  position:relative;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  min-height:200px;
+}
+.frame img{
+  width:100%;height:auto;max-height:50vh;
+  object-fit:contain;display:block;
+  border:1px solid var(--line-2);border-radius:2px;
+  transition:opacity .38s var(--ease);
+}
+.frame img.out{opacity:0}
+ol.flow{list-style:none;counter-reset:fl;margin-top:.3rem}
+ol.flow li{
+  counter-increment:fl;position:relative;
+  padding:.58rem 0 .58rem 2rem;
+  font-size:clamp(.9rem,.32vw + .62vh,1.1rem);
+  line-height:1.85;color:var(--ink-2);
+  border-bottom:1px solid var(--line-2);
+}
+ol.flow li:last-child{border-bottom:none}
+ol.flow li::before{
+  content:counter(fl,decimal-leading-zero);
+  position:absolute;left:0;top:.58rem;
+  font-family:"Times New Roman",serif;font-size:.74rem;
+  color:var(--accent-2);letter-spacing:.05em;
+}
+ol.flow li b{color:var(--ink)}
+
+/* ================= 页 7 · 结论 ================= */
+.lead{
+  font-size:clamp(1.05rem,.75vw + .72vh,1.5rem);
+  line-height:1.85;color:var(--ink-2);
+}
+.recap{
+  display:flex;align-items:stretch;flex-wrap:wrap;
+  margin-top:1.8rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.recap .cell{flex:1 1 0;min-width:9rem;padding:1.05rem 1.15rem;position:relative}
+.recap .cell + .cell{border-left:1px solid var(--line)}
+.recap .cell .k{
+  font-size:.68rem;letter-spacing:.2em;color:var(--accent-2);
+  font-family:"Times New Roman",serif;
+}
+.recap .cell .t{margin-top:.4rem;font-size:.96rem;font-weight:700;color:var(--ink)}
+.recap .cell .s{margin-top:.28rem;font-size:.78rem;color:var(--ink-3);line-height:1.6}
+.closing{
+  margin-top:2.2rem;display:grid;grid-template-columns:1fr auto;
+  gap:2rem;align-items:end;
+}
+.closing .big{
+  font-size:clamp(1.12rem,1.15vw + .85vh,1.85rem);
+  line-height:1.65;font-weight:700;color:var(--ink);
+}
+.closing .big em{font-style:normal;color:var(--accent)}
+.closing .sign{font-size:.8rem;color:var(--ink-3);letter-spacing:.2em;white-space:nowrap}
+@media (max-width:760px){
+  .recap .cell{flex:1 1 100%;border-left:none!important;border-top:1px solid var(--line)}
+  .recap .cell:first-child{border-top:none}
+  .closing{grid-template-columns:1fr;gap:.8rem}
+}
+
+/* ================= 页 8 · 参考文献 ================= */
+.refttl{
+  display:flex;align-items:center;gap:1rem;
+  font-size:.68rem;letter-spacing:.24em;color:var(--ink-3);
+  font-family:"Times New Roman",serif;
+}
+.refttl::after{content:"";flex:1;height:1px;background:var(--line)}
+.refttl.mt{margin-top:1.15rem}
+.refttl + ol.ref{margin-top:.3rem}
+ol.ref{list-style:none;counter-reset:rf}
+ol.ref.cont{counter-reset:rf 3}
+ol.ref li{
+  counter-increment:rf;position:relative;
+  padding:.5rem 0 .5rem 2.2rem;
+  font-size:clamp(.82rem,.24vw + .58vh,.96rem);
+  line-height:1.66;color:var(--ink-2);
+  border-bottom:1px solid var(--line-2);
+}
+ol.ref li:last-child{border-bottom:none}
+ol.ref li::before{
+  content:counter(rf,decimal-leading-zero);
+  position:absolute;left:0;top:.66rem;
+  font-family:"Times New Roman",serif;font-size:.72rem;
+  color:var(--accent-2);letter-spacing:.05em;
+}
+ol.ref li i{font-style:italic;color:var(--ink)}
+ol.ref li .doi{font-family:"Times New Roman",serif;color:var(--ink-3)}
+ul.srcs{list-style:none;margin-top:.2rem}
+ul.srcs li{
+  padding:.45rem 0;border-bottom:1px solid var(--line-2);
+  font-size:.82rem;line-height:1.58;color:var(--ink-2);
+}
+ul.srcs li:last-child{border-bottom:none}
+ul.srcs li b{
+  font-family:"Times New Roman",serif;font-weight:600;
+  color:var(--accent);letter-spacing:.06em;margin-right:.5rem;
+}
+ul.srcs li em{display:block;font-style:normal;color:var(--ink-3);font-size:.78rem;margin-top:.15rem}
+@media (max-width:860px){
+  ol.ref li{padding-left:1.9rem}
+}
+
+/* ================= 章节导航 ================= */
+.rail{
+  position:fixed;left:50%;bottom:1.35rem;transform:translateX(-50%);
+  display:flex;gap:.2rem;padding:.3rem;z-index:60;
+  background:rgba(255,255,255,.85);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  backdrop-filter:saturate(180%) blur(14px);
+  border:1px solid var(--line);border-radius:999px;
+  box-shadow:0 10px 30px rgba(18,24,31,.08);
+  max-width:calc(100vw - 1.6rem);overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;
+}
+.rail::-webkit-scrollbar{display:none}
+.rail button{
+  border:0;background:transparent;cursor:pointer;
+  font:inherit;font-size:.76rem;letter-spacing:.07em;color:var(--ink-3);
+  padding:.4rem .82rem;border-radius:999px;white-space:nowrap;
+  transition:background .3s var(--ease),color .3s var(--ease);
+}
+.rail button:hover{background:var(--line-2);color:var(--ink-2)}
+.rail button.on{background:var(--ink);color:#fff}
+@media (max-width:860px){
+  .rail{bottom:.7rem;font-size:.72rem}
+  .rail button{font-size:.72rem;padding:.34rem .62rem}
+}
+
+/* ================= 打印 ================= */
+@media print{
+  .rail,.progress{display:none}
+  .sec{min-height:0;page-break-after:always;break-after:page;padding:1.5cm}
+  [data-anim]{opacity:1!important;transform:none!important}
+  .bp-link{stroke-dashoffset:0!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  [data-anim]{opacity:1;transform:none}
+  .bp-link{stroke-dashoffset:0}
+  .bp-node-p,.bp-node-a{opacity:1;transform:scale(1)}
+  .fill,.probe .tk i{width:var(--w)}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- ================= 0 封面 ================= -->
+<section class="sec" id="s0">
+  <div class="grid-bg"></div>
+  <div class="wrap g g-73">
+    <div>
+      <div class="kicker" data-anim="fade"><b>城市生态学</b><span style="letter-spacing:.02em">课堂展示</span></div>
+      <h1 class="cover-title" data-anim style="--d:90ms">城市里的花越多，<br>生态网络越好吗？</h1>
+      <div class="cover-lede" data-anim style="--d:240ms">
+        城市绿化增加的是花源。传粉者会不会跟着变多，传粉是否更顺畅，还要看植物与传粉者之间的具体联系。
+      </div>
+      <div class="cover-meta" data-anim style="--d:380ms">
+        <span>2026 年 10 月</span>
+        <span>约 5 分钟</span>
+        <span>Liang et al. 2023 · Proesmans et al. 2024 · Li et al. 2026</span>
+      </div>
+    </div>
+
+    <div class="cover-art" aria-hidden="true">
+      <svg width="330" height="330" viewBox="0 0 330 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#dfe5ea" stroke-width="1">
+          <line x1="120" y1="40"  x2="210" y2="112"/>
+          <line x1="120" y1="40"  x2="210" y2="205"/>
+          <line x1="120" y1="125" x2="210" y2="112"/>
+          <line x1="120" y1="210" x2="210" y2="205"/>
+          <line x1="120" y1="210" x2="210" y2="298"/>
+        </g>
+        <g>
+          <circle cx="120" cy="40"  r="16" fill="#fff" stroke="#2ea8dc" stroke-width="2"/>
+          <circle cx="120" cy="125" r="16" fill="#fff" stroke="#2ea8dc" stroke-width="2"/>
+          <circle cx="120" cy="210" r="16" fill="#fff" stroke="#2ea8dc" stroke-width="2"/>
+          <circle cx="120" cy="295" r="16" fill="#fff" stroke="#dfe5ea" stroke-width="2"/>
+        </g>
+        <g fill="#0b7ba8">
+          <rect x="196" y="98"  width="28" height="28" rx="8"/>
+          <rect x="196" y="191" width="28" height="28" rx="8"/>
+          <rect x="196" y="284" width="28" height="28" rx="8" fill="#dfe5ea"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1 问题的起点 ================= -->
+<section class="sec" id="s1">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>01</b><span style="letter-spacing:.02em">问题的起点</span></div>
+    <h2 data-anim style="--d:70ms">城市化对传粉者究竟意味着什么</h2>
+    <div class="src" data-anim style="--d:150ms">Liang et al. 2023, <i>Ecology Letters</i> — 一项纳入 133 项研究的 Meta 分析</div>
+
+    <div class="g g-56 g-top" style="margin-top:2.4rem">
+      <div data-anim style="--d:240ms">
+        <p>把 <strong>133 项独立研究</strong>的结论合到一起，总体趋势是清楚的：随着城市化程度加深，传粉者的丰富度和丰度都在下降。单个研究往往样本量不足；133 项合到一起，趋势才稳定下来。</p>
+        <p>不过不同类群给出的答案并不一致。蜜蜂、食蚜蝇、蝴蝶，各自沿着不同的方向变化。</p>
+        <p>另一组数据的方向相反：在非热带地区，城市植物的<strong>结籽率反而比乡村更高</strong>。</p>
+        <p>传粉者减少，传粉服务却没有同步下降。两者测量的并不是同一件事。</p>
+      </div>
+
+      <div>
+        <div class="figure-xl" data-anim style="--d:340ms"><span id="counter">0</span></div>
+        <div class="figure-cap" data-anim style="--d:440ms">项独立研究</div>
+        <div class="rule" data-anim="fade" style="--d:500ms"></div>
+        <p data-anim="fade" style="font-size:.88rem;color:var(--ink-3);--d:560ms">
+          这 133 项研究覆盖了不同的纬度、不同的城市规模，以及多个传粉者类群，
+          所以合出来的趋势，比任何一项单独的研究都更稳。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 二分网络 ================= -->
+<section class="sec" id="s2">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>02</b><span style="letter-spacing:.02em">怎么看这个问题</span></div>
+    <h2 data-anim style="--d:70ms">把植物和传粉者画进同一张图</h2>
+    <div class="src" data-anim style="--d:150ms">二分网络与连接度</div>
+
+    <div class="g g-56 g-top" style="margin-top:2rem">
+      <div data-anim style="--d:240ms">
+        <p>二分网络把两个类群放进同一张图：左边是植物，右边是传粉者，一条连线代表一次访花记录。</p>
+        <p>网络的疏密用<strong>连接度</strong>衡量：实际出现的连线数，除以理论上可能出现的连线数。</p>
+
+        <div class="formula" data-anim="fade" style="--d:500ms">
+          <div class="fx">C = L / (P × A)</div>
+          <div class="legend">
+            <span><i>L</i> 实际观察到的连线数</span>
+            <span><i>P</i> 植物种数</span>
+            <span><i>A</i> 传粉者种数</span>
+          </div>
+        </div>
+
+        <div class="probe" data-anim="fade" style="--d:580ms">
+          <div class="ph"><span>物种</span><span>访花记录数</span></div>
+          <div class="prow">
+            <div class="nm"><i style="font-style:normal;font-family:'Times New Roman',serif">P1</i></div>
+            <div class="tk"><i style="--w:66%;--fd:660ms"></i></div>
+            <div class="pc">2</div><div class="pr">条</div>
+          </div>
+          <div class="prow">
+            <div class="nm"><i style="font-style:normal;font-family:'Times New Roman',serif">P2</i></div>
+            <div class="tk"><i style="--w:33%;--fd:730ms"></i></div>
+            <div class="pc">1</div><div class="pr">条</div>
+          </div>
+          <div class="prow">
+            <div class="nm"><i style="font-style:normal;font-family:'Times New Roman',serif">P4</i></div>
+            <div class="tk"><i style="--w:66%;--fd:800ms"></i></div>
+            <div class="pc">2</div><div class="pr">条</div>
+          </div>
+          <div class="prow">
+            <div class="nm"><i style="font-style:normal;font-family:'Times New Roman',serif">P6</i></div>
+            <div class="tk"><i style="--w:33%;--fd:870ms"></i></div>
+            <div class="pc">1</div><div class="pr">条</div>
+          </div>
+          <div class="pf">7 种植物一共贡献 10 条连线，平均下来每种不到 1.5 条</div>
+        </div>
+      </div>
+
+      <figure data-anim="right" style="--d:300ms">
+        <svg class="bp" id="bp" viewBox="0 0 660 396" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="二分网络示意图：7 种植物与 5 种传粉者之间的 10 条连线">
+          <defs>
+            <linearGradient id="boxGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2ea8dc"/>
+              <stop offset="1" stop-color="#0b7ba8"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 列标题 -->
+          <text class="bp-col-title" x="170" y="22" text-anchor="middle">植物</text>
+          <text class="bp-col-title" x="470" y="22" text-anchor="middle">传粉者</text>
+          <line class="bp-axis" x1="170" y1="36" x2="170" y2="374"/>
+          <line class="bp-axis" x1="470" y1="36" x2="470" y2="374"/>
+
+          <path class="bp-link" pathLength="1" data-p="P1" data-a="A1" d="M161.0 60.9 C257.0 60.9 365.0 106.8 461.0 106.8" style="--ld:620ms"/>
+          <path class="bp-link" pathLength="1" data-p="P1" data-a="A2" d="M179.0 67.2 C275.0 67.2 365.0 152.8 461.0 152.8" style="--ld:690ms"/>
+          <path class="bp-link" pathLength="1" data-p="P2" data-a="A1" d="M170.0 110.0 C266.0 110.0 374.0 110.0 470.0 110.0" style="--ld:760ms"/>
+          <path class="bp-link" pathLength="1" data-p="P3" data-a="A1" d="M161.0 152.8 C257.0 152.8 383.0 113.2 479.0 113.2" style="--ld:830ms"/>
+          <path class="bp-link" pathLength="1" data-p="P3" data-a="A3" d="M179.0 159.2 C275.0 159.2 365.0 198.8 461.0 198.8" style="--ld:900ms"/>
+          <path class="bp-link" pathLength="1" data-p="P4" data-a="A2" d="M161.0 198.8 C257.0 198.8 383.0 159.2 479.0 159.2" style="--ld:970ms"/>
+          <path class="bp-link" pathLength="1" data-p="P4" data-a="A4" d="M179.0 205.2 C275.0 205.2 365.0 244.8 461.0 244.8" style="--ld:1040ms"/>
+          <path class="bp-link" pathLength="1" data-p="P5" data-a="A3" d="M170.0 248.0 C266.0 248.0 383.0 205.2 479.0 205.2" style="--ld:1110ms"/>
+          <path class="bp-link" pathLength="1" data-p="P6" data-a="A4" d="M170.0 294.0 C266.0 294.0 383.0 251.2 479.0 251.2" style="--ld:1180ms"/>
+          <path class="bp-link" pathLength="1" data-p="P7" data-a="A5" d="M170.0 340.0 C266.0 340.0 374.0 294.0 470.0 294.0" style="--ld:1250ms"/>
+
+          <!-- 植物节点（内圈空心圆 + 外圈柔光，数字为访花记录数）-->
+          <g class="bp-node-p" data-p="P1" style="--nd:170ms"><circle class="bp-halo" cx="170" cy="64" r="25"/><circle class="bp-dot" cx="170" cy="64" r="17"/></g>
+          <g class="bp-node-p" data-p="P2" style="--nd:228ms"><circle class="bp-halo" cx="170" cy="110" r="25"/><circle class="bp-dot" cx="170" cy="110" r="17"/></g>
+          <g class="bp-node-p" data-p="P3" style="--nd:286ms"><circle class="bp-halo" cx="170" cy="156" r="25"/><circle class="bp-dot" cx="170" cy="156" r="17"/></g>
+          <g class="bp-node-p" data-p="P4" style="--nd:344ms"><circle class="bp-halo" cx="170" cy="202" r="25"/><circle class="bp-dot" cx="170" cy="202" r="17"/></g>
+          <g class="bp-node-p" data-p="P5" style="--nd:402ms"><circle class="bp-halo" cx="170" cy="248" r="25"/><circle class="bp-dot" cx="170" cy="248" r="17"/></g>
+          <g class="bp-node-p" data-p="P6" style="--nd:460ms"><circle class="bp-halo" cx="170" cy="294" r="25"/><circle class="bp-dot" cx="170" cy="294" r="17"/></g>
+          <g class="bp-node-p" data-p="P7" style="--nd:518ms"><circle class="bp-halo" cx="170" cy="340" r="25"/><circle class="bp-dot" cx="170" cy="340" r="17"/></g>
+
+          <!-- 传粉者节点（方块 + 外圈柔光）-->
+          <g class="bp-node-a" data-a="A1" style="--nd:200ms"><circle class="bp-halo" cx="470" cy="110" r="25"/><rect class="bp-box" x="454" y="94" width="32" height="32" rx="10"/></g>
+          <g class="bp-node-a" data-a="A2" style="--nd:258ms"><circle class="bp-halo" cx="470" cy="156" r="25"/><rect class="bp-box" x="454" y="140" width="32" height="32" rx="10"/></g>
+          <g class="bp-node-a" data-a="A3" style="--nd:316ms"><circle class="bp-halo" cx="470" cy="202" r="25"/><rect class="bp-box" x="454" y="186" width="32" height="32" rx="10"/></g>
+          <g class="bp-node-a" data-a="A4" style="--nd:374ms"><circle class="bp-halo" cx="470" cy="248" r="25"/><rect class="bp-box" x="454" y="232" width="32" height="32" rx="10"/></g>
+          <g class="bp-node-a" data-a="A5" style="--nd:432ms"><circle class="bp-halo" cx="470" cy="294" r="25"/><rect class="bp-box" x="454" y="278" width="32" height="32" rx="10"/></g>
+
+          <!-- 度值：每种植物 / 传粉者实际连出的线条数 -->
+          <text class="bp-deg" x="170" y="69.0">2</text>
+          <text class="bp-deg" x="170" y="115.0">1</text>
+          <text class="bp-deg" x="170" y="161.0">2</text>
+          <text class="bp-deg" x="170" y="207.0">2</text>
+          <text class="bp-deg" x="170" y="253.0">1</text>
+          <text class="bp-deg" x="170" y="299.0">1</text>
+          <text class="bp-deg" x="170" y="345.0">1</text>
+          <text class="bp-deg-a" x="470" y="115.5">3</text>
+          <text class="bp-deg-a" x="470" y="161.5">2</text>
+          <text class="bp-deg-a" x="470" y="207.5">2</text>
+          <text class="bp-deg-a" x="470" y="253.5">2</text>
+          <text class="bp-deg-a" x="470" y="299.5">1</text>
+
+          <!-- 编号 -->
+          <text class="bp-label bp-label-p" x="132" y="69.0">P1</text>
+          <text class="bp-label bp-label-p" x="132" y="115.0">P2</text>
+          <text class="bp-label bp-label-p" x="132" y="161.0">P3</text>
+          <text class="bp-label bp-label-p" x="132" y="207.0">P4</text>
+          <text class="bp-label bp-label-p" x="132" y="253.0">P5</text>
+          <text class="bp-label bp-label-p" x="132" y="299.0">P6</text>
+          <text class="bp-label bp-label-p" x="132" y="345.0">P7</text>
+          <text class="bp-label bp-label-a" x="504" y="115.0">A1</text>
+          <text class="bp-label bp-label-a" x="504" y="161.0">A2</text>
+          <text class="bp-label bp-label-a" x="504" y="207.0">A3</text>
+          <text class="bp-label bp-label-a" x="504" y="253.0">A4</text>
+          <text class="bp-label bp-label-a" x="504" y="299.0">A5</text>
+        </svg>
+        <figcaption>停在任一节点上，可以看到它连了哪些对象</figcaption>
+        <div class="bp-note">10 条连线 ÷ 35 种可能组合 → 连接度 C = 10 / 35 ≈ <b class="num">0.29</b></div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 三个层次 ================= -->
+<section class="sec" id="s3">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>03</b><span style="letter-spacing:.02em">评价的层次</span></div>
+    <h2 data-anim style="--d:70ms">物种、网络、功能，各自回答不同的问题</h2>
+    <div class="src" data-anim style="--d:150ms">三层评价框架</div>
+
+    <div class="layers">
+      <div class="layer" data-anim style="--d:260ms">
+        <div class="no">LAYER 01</div>
+        <div class="tt">物种多样性</div>
+        <div class="dd">植物和传粉者各有几种、各有多少个体。这是最常被统计、也最容易获得的一层数据。</div>
+        <div class="tag">物种数 · 丰度</div>
+      </div>
+
+      <div class="layer" data-anim style="--d:400ms">
+        <div class="no">LAYER 02</div>
+        <div class="tt">相互作用网络</div>
+        <div class="dd">谁和谁发生关系，关系有多专一。物种数相同的两块绿地，网络结构可以差别很大。</div>
+        <div class="tag">连接度 · 专化程度 · 嵌套性</div>
+      </div>
+
+      <div class="layer" data-anim style="--d:540ms">
+        <div class="no">LAYER 03</div>
+        <div class="tt">传粉功能</div>
+        <div class="dd">这些相互作用最终产生了什么。访花并不等于有效传粉，还要看植物端的实际结果。</div>
+        <div class="tag">访花频率 · 结籽率 · 繁殖成功率</div>
+      </div>
+    </div>
+
+    <div class="layers-note" data-anim="fade" style="--d:680ms">
+      物种数量上升，网络结构未必跟着改善；网络结构改善了，传粉功能也未必同步提升。
+      三层之间不存在自动的传导关系，<b>评价时需要分别测量</b>。
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 法国第戎 ================= -->
+<section class="sec" id="s4">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>04</b><span style="letter-spacing:.02em">案例一</span></div>
+    <h2 data-anim style="--d:70ms">城市化把网络改成了什么样</h2>
+    <div class="src" data-anim style="--d:150ms">Proesmans et al. 2024, <i>Functional Ecology</i> — 法国第戎地区</div>
+
+    <div class="g g-64 g-top" style="margin-top:1.8rem">
+      <div>
+        <p data-anim style="--d:240ms">
+          研究在<strong>12 个景观单元</strong>中展开，覆盖农村、郊区、城市三类景观，每处采样三个季节。
+          全研究累计记录到 175 种植物和 281 种传粉者。
+        </p>
+
+        <div class="chart">
+          <div class="chart-head" data-anim="fade" style="--d:320ms">
+            <span>响应变量</span><span>模型系数与显著性</span>
+          </div>
+
+          <div class="row" data-anim="fade" style="--d:380ms">
+            <div class="nm">植物丰富度</div>
+            <div class="track"><div class="fill up" style="--w:96%;--fd:480ms"></div></div>
+            <div class="coef up">+0.075</div>
+            <div class="sig"><span class="st up">p&lt;0.0001 ***</span></div>
+          </div>
+
+          <div class="row" data-anim="fade" style="--d:450ms">
+            <div class="nm">连接度</div>
+            <div class="track"><div class="fill down" style="--w:14%;--fd:560ms"></div></div>
+            <div class="coef down">−0.011</div>
+            <div class="sig"><span class="st down">p=0.0032 **</span></div>
+          </div>
+
+          <div class="row" data-anim="fade" style="--d:520ms">
+            <div class="nm">专化程度 H₂′</div>
+            <div class="track"><div class="fill down" style="--w:100%;--fd:640ms"></div></div>
+            <div class="coef down">−0.078</div>
+            <div class="sig"><span class="st down">p=0.0342 *</span></div>
+          </div>
+
+          <div class="row" data-anim="fade" style="--d:590ms">
+            <div class="nm">传粉者丰富度</div>
+            <div class="track"><div class="fill ns" style="--w:26%;--fd:720ms"></div></div>
+            <div class="coef ns">系数为正</div>
+            <div class="sig">p=0.0516</div>
+          </div>
+        </div>
+
+        <div class="takeaway" data-anim="fade" style="--d:700ms">
+          植物种类随城市化增加，连线反而变少，传粉者也没有更专一。
+          网络上确实发生了重组，只是用「退化」来概括并不准确。
+        </div>
+
+        <p data-anim="fade" style="margin-top:1rem;font-size:.86rem;color:var(--ink-3);--d:780ms">
+          系数来自统计模型，反映变化的方向和相对大小，不能直接当作百分比读。
+          传粉者丰富度的系数为正，但没有跨过 0.05 这个门槛。
+        </p>
+      </div>
+
+      <figure data-anim="right" style="--d:300ms">
+        <img src="assets/Proesmans_2024_Figure2_网络结构随景观梯度变化.png"
+             alt="Proesmans 2024 图2：连接度、嵌套性与网络不对称性随景观梯度的变化">
+        <figcaption>Proesmans et al. 2024, Figure 2</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5 北京温榆河 ================= -->
+<section class="sec" id="s5">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>05</b><span style="letter-spacing:.02em">案例二</span></div>
+    <h2 data-anim style="--d:70ms">什么样的绿地更有利于传粉网络</h2>
+    <div class="src" data-anim style="--d:150ms">Li et al. 2026, <i>Urban Ecosystems</i> 29(3) — 北京温榆河公园</div>
+
+    <div class="g g-64 g-top" style="margin-top:1.8rem">
+      <div data-anim style="--d:260ms">
+        <p><strong>人工规划的区域</strong>开花植物更多，外来植物的占比也更高。</p>
+        <p><strong>近自然管理的区域</strong>则呈现出另一种状态：传粉者种类更丰富，专化程度、嵌套性、连接度和稳健性都更高。</p>
+        <p>需要注意，两组绿地之间的差异不止植物来源一项，资源配置和微生境同时发生了变化。把结果单独归给乡土植物或外来植物，都缺少足够的支撑。</p>
+
+        <ol class="flow" data-anim="fade" style="--d:440ms">
+          <li>广州植物园的研究提供了一个补充视角：原生植物和外来植物都可能在不同月份处于网络的核心位置，哪一种占主导随时间变化。</li>
+          <li>花的形态、开花时间、花蜜成分这些性状能否与访问者匹配，往往决定了相互作用能不能建立起来。</li>
+          <li>外来植物不必然等同于入侵物种，处理时需要逐种评估。</li>
+        </ol>
+      </div>
+
+      <figure data-anim="right" style="--d:320ms">
+        <div class="switch">
+          <div class="sbar" role="tablist" aria-label="选择季节">
+            <button type="button" class="on" data-img="assets/北京温榆河公园/Li_2026_Figure3_春季_APM与NNM.png" data-i="0">春季</button>
+            <button type="button" data-img="assets/北京温榆河公园/Li_2026_Figure3_夏季_APM与NNM.png" data-i="1">夏季</button>
+            <button type="button" data-img="assets/北京温榆河公园/Li_2026_Figure3_秋季_APM与NNM.png" data-i="2">秋季</button>
+          </div>
+          <div class="frame">
+            <img id="season-img"
+                 src="assets/北京温榆河公园/Li_2026_Figure3_春季_APM与NNM.png"
+                 alt="Li 2026 图3 春季：人工规划区域与近自然管理区域的二分网络对比">
+          </div>
+        </div>
+        <figcaption>
+          Li et al. 2026, Figure 3 局部（春季）· 左为人工规划区域，右为近自然管理区域
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6 结论 ================= -->
+<section class="sec" id="s6">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>06</b><span style="letter-spacing:.02em">回到最初的问题</span></div>
+    <h2 data-anim style="--d:70ms">花变多了，接下来看什么</h2>
+
+    <div class="lead" data-anim style="margin-top:1.4rem;max-width:56ch;--d:180ms">
+      花变多是起点，但从物种数量到生态网络，中间还有一段距离。
+    </div>
+
+    <div class="recap" data-anim="fade" style="--d:300ms">
+      <div class="cell">
+        <div class="k">LAYER 01</div>
+        <div class="t">物种多样性</div>
+        <div class="s">植物与传粉者的种数、丰度</div>
+      </div>
+      <div class="cell">
+        <div class="k">LAYER 02</div>
+        <div class="t">相互作用网络</div>
+        <div class="s">连接度、专化程度、嵌套性</div>
+      </div>
+      <div class="cell">
+        <div class="k">LAYER 03</div>
+        <div class="t">传粉功能</div>
+        <div class="s">访花频率、结籽率、繁殖成功率</div>
+      </div>
+    </div>
+
+    <div class="g g-11 g-top" style="margin-top:2rem;gap:clamp(1.6rem,3.6vw,3.6rem)">
+      <div data-anim style="--d:400ms">
+        <div style="font-size:.7rem;letter-spacing:.2em;color:var(--ink-3);margin-bottom:.8rem">管理建议</div>
+        <ol class="flow">
+          <li>优先选用乡土植物，把花期安排得前后相接</li>
+          <li>关注性状匹配：花的形态、开花时间、花蜜成分</li>
+          <li>保留筑巢用的微生境：裸土、枯枝、树洞</li>
+          <li>把三个层次都纳入评价，不要只看物种数</li>
+          <li>对外来植物逐种评估，不必一刀切清除</li>
+        </ol>
+      </div>
+
+      <div data-anim="fade" style="--d:520ms">
+        <div style="font-size:.7rem;letter-spacing:.2em;color:var(--ink-3);margin-bottom:.8rem">说明</div>
+        <p style="font-size:.88rem;color:var(--ink-3)">
+          以上建议来自文献中的机制与相关性证据。不同城市的基质条件、气候背景和现有群落差异很大，
+          落到具体方案之前，仍然需要在本地做一轮实测来确认效果。
+        </p>
+      </div>
+    </div>
+
+    <div class="closing">
+      <div class="big" data-anim style="--d:640ms">
+        评价一块绿地，<em>物种数只是起点</em>。
+      </div>
+      <div class="sign" data-anim="fade" style="--d:760ms">谢谢</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7 参考文献 ================= -->
+<section class="sec" id="s7">
+  <div class="wrap">
+    <div class="kicker" data-anim="fade"><b>07</b><span style="letter-spacing:.02em">参考文献</span></div>
+    <h2 data-anim style="--d:70ms">本页所引文献与资料</h2>
+    <div class="src" data-anim style="--d:150ms">正文中标注的文献出处，以及图表与资料的来源说明</div>
+
+    <div class="g g-11 g-top" style="margin-top:2rem;gap:clamp(1.6rem,3.8vw,4rem)">
+
+      <div data-anim style="--d:240ms">
+        <div class="refttl">主线文献</div>
+        <ol class="ref">
+          <li data-anim="fade" style="--d:300ms">
+            Liang, H., He, Y.-D., Theodorou, P., &amp; Yang, C.-F. (2023).
+            The effects of urbanization on pollinators and pollination: A meta-analysis.
+            <i>Ecology Letters</i>, 26(9), 1629–1642.
+            <span class="doi">DOI: 10.1111/ele.14277</span>
+          </li>
+          <li data-anim="fade" style="--d:360ms">
+            Proesmans, W., Felten, E., Laurent, E., Albrecht, M., Cyrille, N., Labonté, A.,
+            Maurer, C., Paxton, R., Schweiger, O., Szentgyörgyi, H., &amp; Vanbergen, A. J. (2024).
+            Urbanisation and agricultural intensification modulate plant–pollinator network
+            structure and robustness. <i>Functional Ecology</i>, 38(3), 628–641.
+            <span class="doi">DOI: 10.1111/1365-2435.14503</span>
+          </li>
+          <li data-anim="fade" style="--d:420ms">
+            Li, Y., Shu, M., Li, C., Liu, L., Zhou, Y., Wu, L., &amp; Wang, Y. (2026).
+            Impacts of vegetation management on pollination network structure and robustness
+            in urban parks: A case study from Beijing Wenyu River Park.
+            <i>Urban Ecosystems</i>, 29(3), Article 137.
+            <span class="doi">DOI: 10.1007/s11252-026-01998-2</span>
+          </li>
+        </ol>
+      </div>
+
+      <div data-anim="fade" style="--d:400ms">
+        <div class="refttl">补充文献</div>
+        <ol class="ref cont">
+          <li data-anim="fade" style="--d:460ms">
+            Adedoja, O. A., &amp; Mallinger, R. E. (2024).
+            Can trait matching inform the design of pollinator-friendly urban green spaces?
+            A review and synthesis of the literature.
+            <i>Ecosphere</i>, 15(1), e4734.
+            <span class="doi">DOI: 10.1002/ecs2.4734</span>
+          </li>
+          <li data-anim="fade" style="--d:520ms">
+            Wang, X.-P., Gu, S.-R., Zhao, Z.-T., Li, S.-J., Shi, M.-M., &amp; Tu, T.-Y. (2025).
+            Monthly alternations of core plant species in dynamic plant–pollinator networks
+            of an urban botanical garden. <i>Ecology and Evolution</i>, 15(7), e71822.
+            <span class="doi">DOI: 10.1002/ece3.71822</span>
+          </li>
+        </ol>
+
+        <div class="refttl mt">图片来源</div>
+        <ul class="srcs">
+          <li data-anim="fade" style="--d:580ms">
+            <b>图 1</b>二分网络示意图
+            <em>自制。节点与连线为示意数据，用于说明连接度的计算方式。</em>
+          </li>
+          <li data-anim="fade" style="--d:620ms">
+            <b>图 2</b>三层评价框架图
+            <em>自制。依据本页所引五篇文献的共同结论整理。</em>
+          </li>
+          <li data-anim="fade" style="--d:660ms">
+            <b>图 3</b>网络结构随景观梯度变化
+            <em>Proesmans et al. 2024, Figure 2。原图转载，图注保留。</em>
+          </li>
+          <li data-anim="fade" style="--d:700ms">
+            <b>图 4</b>季节性二分网络
+            <em>Li et al. 2026, Figure 3 局部。原图转载，图注保留。</em>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="takeaway" data-anim="fade" style="--d:760ms">
+      <p style="font-size:.84rem;color:var(--ink-2);line-height:1.7">
+        以上文献均按作者、年份、标题、期刊、卷期页码、DOI 的统一格式列出。课堂上展示的两幅
+        文献图件保留原图注与出处；自制图件仅用于说明概念，其中的节点与连线为示意数据。
+        文献中未能从摘要核实的数值，正文中未引用。
+      </p>
+    </div>
+  </div>
+</section>
+
+<nav class="rail" id="rail" aria-label="章节导航"></nav>
+
+<script>
+(function(){
+  var secs = Array.from(document.querySelectorAll('.sec'));
+  var rail = document.getElementById('rail');
+  var bar  = document.getElementById('progress');
+  var names = ['封面','问题的起点','二分网络','三个层次','案例一 · 法国','案例二 · 北京','结论','参考文献'];
+  var active = 0, counterDone = false, ticking = false;
+
+  /* ---------- 导航 ---------- */
+  secs.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', names[i] || ('第' + (i+1) + '节'));
+    b.textContent = names[i] || ('第' + (i+1) + '节');
+    if(i === 0) b.classList.add('on');
+    b.addEventListener('click', function(){ go(i); });
+    rail.appendChild(b);
+  });
+  var chips = Array.from(rail.children);
+
+  function go(i){
+    i = Math.max(0, Math.min(secs.length-1, i));
+    secs[i].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function activate(i){
+    if(i === active && secs[i].classList.contains('on')) return;
+    active = i;
+    secs.forEach(function(s,k){ s.classList.toggle('on', k === i); });
+    chips.forEach(function(c,k){ c.classList.toggle('on', k === i); });
+    var chip = chips[i];
+    if(chip && rail.scrollWidth > rail.clientWidth){
+      rail.scrollTo({left: chip.offsetLeft - (rail.clientWidth - chip.offsetWidth)/2, behavior:'smooth'});
+    }
+  }
+
+  /* ---------- 进入视口即触发动画 ---------- */
+  var mo = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(mo){
+    secs.forEach(function(s){ s.classList.add('on'); });
+    var c0 = document.getElementById('counter'); if(c0) c0.textContent = '133';
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && e.intersectionRatio > 0.45){
+          activate(secs.indexOf(e.target));
+        }
+      });
+    }, {threshold:[0.45,0.7]});
+    secs.forEach(function(s){ io.observe(s); });
+
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('on');
+          if(e.target.id === 's1') runCounter();
+        }
+      });
+    }, {threshold:0.2});
+    secs.forEach(function(s){ io2.observe(s); });
+
+    window.addEventListener('load', function(){ secs[0].classList.add('on'); });
+    if(document.readyState === 'complete') secs[0].classList.add('on');
+  }
+
+  /* ---------- 进度条 ---------- */
+  function tick(){
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - window.innerHeight;
+    var p = max > 0 ? (window.scrollY || doc.scrollTop) / max : 0;
+    bar.style.width = Math.max(0, Math.min(1, p)) * 100 + '%';
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(tick);
+  }, {passive:true});
+  tick();
+
+  /* ---------- 133 计数 ---------- */
+  var counterEl = document.getElementById('counter');
+  function runCounter(){
+    if(counterDone || !counterEl) return;
+    counterDone = true;
+    var target = 133, dur = 1300, t0 = performance.now();
+    (function step(now){
+      var p = Math.min(1, (now - t0) / dur);
+      counterEl.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if(p < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+
+  /* ---------- 键盘 ---------- */
+  window.addEventListener('keydown', function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target;
+    if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    var k = e.key, jumped = true;
+    if(k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ')      go(active + 1);
+    else if(k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp')                  go(active - 1);
+    else if(k === 'Home')                                                            go(0);
+    else if(k === 'End')                                                             go(secs.length - 1);
+    else jumped = false;
+    if(jumped) e.preventDefault();
+    else return;
+    if(!mo) secs.forEach(function(s,k2){ if(k2 === active) s.classList.add('on'); });
+  }, {passive:false});
+
+  /* ---------- 二分网络：悬停高亮 ---------- */
+  var bp = document.getElementById('bp');
+  if(bp){
+    var links = Array.from(bp.querySelectorAll('.bp-link'));
+    var pNodes = Array.from(bp.querySelectorAll('.bp-node-p'));
+    var aNodes = Array.from(bp.querySelectorAll('.bp-node-a'));
+
+    function clear(){
+      bp.classList.remove('dim-others','dim-self');
+      links.forEach(function(l){ l.classList.remove('hot'); });
+      pNodes.concat(aNodes).forEach(function(n){ n.classList.remove('hot'); });
+    }
+
+    aNodes.forEach(function(node){
+      var key = node.getAttribute('data-a');
+      node.addEventListener('mouseenter', function(){
+        if(!bp.classList.contains('on')) return;
+        clear();
+        bp.classList.add('dim-others','dim-self');
+        node.classList.add('hot');
+        var used = {};
+        links.forEach(function(l){
+          if(l.getAttribute('data-a') === key){
+            l.classList.add('hot');
+            used[l.getAttribute('data-p')] = true;
+          }
+        });
+        pNodes.forEach(function(p){ if(used[p.getAttribute('data-p')]) p.classList.add('hot'); });
+      });
+      node.addEventListener('mouseleave', clear);
+    });
+
+    pNodes.forEach(function(node){
+      var key = node.getAttribute('data-p');
+
+      node.addEventListener('mouseenter', function(){
+        if(!bp.classList.contains('on')) return;
+        clear();
+        bp.classList.add('dim-others','dim-self');
+        node.classList.add('hot');
+        var used = {};
+        links.forEach(function(l){
+          if(l.getAttribute('data-p') === key){
+            l.classList.add('hot');
+            used[l.getAttribute('x2') + ':' + l.getAttribute('y2')] = true;
+          }
+        });
+        aNodes.forEach(function(a){
+          var r = a.querySelector('.bp-box');
+          var cx = (+r.getAttribute('x') + +r.getAttribute('width')/2),
+            cy = (+r.getAttribute('y') + +r.getAttribute('height')/2);
+          if(used[cx + ':' + cy]) a.classList.add('hot');
+        });
+      });
+      node.addEventListener('mouseleave', clear);
+    });
+    bp.addEventListener('mouseleave', clear);
+  }
+
+  /* ---------- 季节切换 ---------- */
+  var sbar = document.querySelector('.sbar');
+  var simg = document.getElementById('season-img');
+  if(sbar && simg){
+    var btns = Array.from(sbar.querySelectorAll('button'));
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        if(b.classList.contains('on')) return;
+        btns.forEach(function(o){ o.classList.remove('on'); });
+        b.classList.add('on');
+        simg.classList.add('out');
+        var next = new Image();
+        next.onload = next.onerror = function(){
+          simg.src = b.getAttribute('data-img');
+          simg.alt = 'Li 2026 图3 ' + b.textContent + '：人工规划区域与近自然管理区域的二分网络对比';
+          requestAnimationFrame(function(){ simg.classList.remove('out'); });
+        };
+        next.src = b.getAttribute('data-img');
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
